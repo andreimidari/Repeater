@@ -8,7 +8,7 @@ class Repeater(FlowLauncher):
             results.append({
                 "Title": "Repeater: How to use",
                 "SubTitle": "Format: <number>::<text to repeat>",
-                "IcoPath": "Images/app.png"
+                "IcoPath": "app.png"
             })
             return results
 
@@ -18,7 +18,7 @@ class Repeater(FlowLauncher):
             results.append({
                 "Title": "Invalid Format",
                 "SubTitle": "Please use the format: <number>::<text>",
-                "IcoPath": "Images/app.png"
+                "IcoPath": "app.png"
             })
             return results
 
@@ -28,7 +28,7 @@ class Repeater(FlowLauncher):
             results.append({
                 "Title": "Text is empty",
                 "SubTitle": "Please provide some text after '::' to repeat.",
-                "IcoPath": "Images/app.png"
+                "IcoPath": "app.png"
             })
             return results
 
@@ -38,14 +38,14 @@ class Repeater(FlowLauncher):
                 results.append({
                     "Title": "Number must be positive",
                     "SubTitle": f"'{num_str.strip()}' is not a positive number.",
-                    "IcoPath": "Images/app.png"
+                    "IcoPath": "app.png"
                 })
                 return results
         except ValueError:
             results.append({
                 "Title": "Invalid Number",
                 "SubTitle": f"'{num_str.strip()}' is not a valid integer.",
-                "IcoPath": "Images/app.png"
+                "IcoPath": "app.png"
             })
             return results
 
@@ -54,7 +54,7 @@ class Repeater(FlowLauncher):
         results.append({
             "Title": f"Result: {repeated_text}",
             "SubTitle": "Select this item to copy the result to your clipboard",
-            "IcoPath": "Images/app.png",
+            "IcoPath": "app.png",
             "JsonRPCAction": {
                 # This action copies the text to the clipboard when the user selects the result.
                 "method": "Flow.Launcher.CopyToClipboard",
