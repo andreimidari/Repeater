@@ -3,7 +3,7 @@
   "ActionKeyword": "repeat",
   "Name": "Repeater",
   "Description": "Repeats a given command or text N times. Usage: N::<text>",
-  "Author": "Gemini",
+  "Author": "andreimidari",
   "Version": "1.0.0",
   "Language": "python",
   "Website": "https://github.com/Flow-Launcher",
