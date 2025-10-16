@@ -1,3 +1,9 @@
+import sys
+import os
+
+parent_folder = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(parent_folder, "Lib"))
+
 from flowlauncher import FlowLauncher
 class Repeater(FlowLauncher):
 
