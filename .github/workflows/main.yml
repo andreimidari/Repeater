@@ -1,4 +1,4 @@
-name: Python Dependencies
+name: Bundle Python Dependencies
 
 on:
   push:
@@ -30,4 +30,3 @@ jobs:
         with:
           commit_message: "chore: Bundle dependencies and add info file"
           file_pattern: Lib/* info.txt
-
