@@ -1,75 +1,76 @@
 import sys
 import os
+import subprocess
+import time
+from threading import Thread
 
-parent_folder = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(parent_folder, "Lib"))
+lib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Lib")
+if os.path.isdir(lib_path):
+    sys.path.append(lib_path)
 
 from flowlauncher import FlowLauncher
+
 class Repeater(FlowLauncher):
 
     def query(self, query):
-        results = []
+        if "::" in query:
+            parts = query.split("::", 1)
+            count_str = parts[0]
+            command = parts[1].strip()
 
-        if '::' not in query:
-            results.append({
-                "Title": "Repeater: How to use",
-                "SubTitle": "Format: <number>::<text to repeat>",
-                "IcoPath": "app.png"
-            })
-            return results
+            if count_str.isdigit():
+                count = int(count_str)
+                if count > 0 and command:
+                    return [{
+                        "Title": f"Execute '{command}' {count} times",
+                        "SubTitle": "This will run the command in sequence.",
+                        "IcoPath": "Images/app.png",
+                        "JsonRPCAction": {
+                            "method": "repeat_command",
+                            "parameters": [command, count]
+                        }
+                    }]
+        return []
 
-        parts = query.split('::', 1)
+    def repeat_command(self, command, count):
+        thread = Thread(target=self._execute_in_background, args=(command, count))
+        thread.daemon = True
+        thread.start()
 
-        if len(parts) != 2:
-            results.append({
-                "Title": "Invalid Format",
-                "SubTitle": "Please use the format: <number>::<text>",
-                "IcoPath": "app.png"
-            })
-            return results
+    def _get_flow_executable_path(self):
+        plugin_dir = os.path.dirname(os.path.abspath(__file__))
+        plugins_dir = os.path.dirname(plugin_dir)
+        app_root_dir = os.path.dirname(plugins_dir)
+        
+        expected_path = os.path.join(app_root_dir, "Flow.Launcher.exe")
+        if os.path.exists(expected_path):
+            return expected_path
+        
+        return None
 
-        num_str, text_to_repeat = parts
+    def _execute_in_background(self, command, count):
+        flow_exe_path = self._get_flow_executable_path()
 
-        if not text_to_repeat:
-            results.append({
-                "Title": "Text is empty",
-                "SubTitle": "Please provide some text after '::' to repeat.",
-                "IcoPath": "app.png"
-            })
-            return results
+        if not flow_exe_path:
+            return
+            
+        startupinfo = None
+        if os.name == 'nt':
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-        try:
-            repeat_count = int(num_str.strip())
-            if repeat_count <= 0:
-                results.append({
-                    "Title": "Number must be positive",
-                    "SubTitle": f"'{num_str.strip()}' is not a positive number.",
-                    "IcoPath": "app.png"
-                })
-                return results
-        except ValueError:
-            results.append({
-                "Title": "Invalid Number",
-                "SubTitle": f"'{num_str.strip()}' is not a valid integer.",
-                "IcoPath": "app.png"
-            })
-            return results
-
-        repeated_text = text_to_repeat * repeat_count
-
-        results.append({
-            "Title": f"Result: {repeated_text}",
-            "SubTitle": "Select this item to copy the result to your clipboard",
-            "IcoPath": "app.png",
-            "JsonRPCAction": {
-                # This action copies the text to the clipboard when the user selects the result.
-                "method": "Flow.Launcher.CopyToClipboard",
-                "parameters": [repeated_text]
-            }
-        })
-
-        return results
+        for _ in range(count):
+            try:
+                subprocess.run(
+                    [flow_exe_path, "-query", command],
+                    check=True,
+                    startupinfo=startupinfo
+                )
+                time.sleep(0.5)  # 0.5 seconds
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                break
 
 if __name__ == "__main__":
     Repeater()
+
 
